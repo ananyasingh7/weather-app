@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html>
+    
+<title>Assignment 3</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+    
+<style>
+    #field {width:15%; margin: auto; vertical-align: center;border-radius: 10px;}
+    .center-block {
+        margin-right: auto;
+        margin-left: auto;
+    }
+</style>  
+    
+    
+
+
+<body>
+    <div class = "input" id = "input">
+        <fieldset id="field"><legend align="center"><b>Weather</b></legend>
+
+        <b>Zip Code:</b>  <input type=text name = zipcode id = zipcode placeholder="Zip Code" required><br><br>
+        <div align="center">
+        <input type = button value = "Get Weather Data" name = weatherButton id = weatherButton><br>
+        </div>
+        <div class = loader id = loader></div>
+        <div class = "output" id = "output">
+            Please enter a zip code above.
+        </fieldset>
+        <br>
+        </div>
+        </div>
+    </div>
+    
+    <div align="center">
+    <div id="icon"><img id="wicon" src="" align="center"></div>
+    </div>
+    <br><br>
+</body>
+    
+    
+<script type="text/javascript"> 
+
+    $(document).ready( function(){
+    
+        $("#weatherButton").click( function() { 
+
+            var zip = $("#zipcode").val() ;
+             
+            if(zip != ''){
+            
+            $.ajax({			
+
+                    type: 		"GET"  ,
+                    url: 		"authenticate.php",
+                    data: 		"zipcode=" + zip ,
+                    
+                    beforeSend: function(){
+                        $(".loader").html(`
+                            <style>
+                            .loader {
+                                width:  100px;
+                                height: 100px;
+                                
+                                border: 20px solid #000000;	
+
+                                border-top: 20px solid red; 
+                                border-radius: 50%;
+                                background-color: cyan ;
+
+                                animation: AAA .7s linear infinite;
+                            }
+
+                            @keyframes AAA {
+                              0%   { transform: rotate(0deg)  ; }
+                              50%  { transform: rotate(90deg)  ; }
+                              100% { transform: rotate(360deg); }
+                            }
+
+                            </style>
+                        `);
+                        
+                        
+                        
+                        $(".output").html("");
+                    
+                    },
+
+                    error: 		function(xhr, status, error) {
+                                    alert( "Error Mesaage:  \r\nNumeric code is: "  + xhr.status + " \r\nError is " + error); 	},
+
+                    success: 	function(result) {
+                        $(".loader").html(``); //stops the loader
+                        var r = JSON.parse(result);
+                        
+                        city = r.name;
+                        res = "<b>City:</b> " + city;
+                    
+                        coorLon = r.coord.lon;
+                        coorLat = r.coord.lat;
+                        res += "<b><br>Coordinates(Lon,Lat): </b>" + "(" + coorLon +"," + coorLat + ")";
+                        
+                        temp = r.main.temp;
+                        temp = (parseFloat(temp) - 273.15) * 9/5 + 32;
+                        res += "<b><br>Temperature: </b>" + temp.toFixed(0) + " &deg;F";
+                        
+                        weather = r.weather[0].main;
+                        res += "<b><br>Weather: </b>" + weather;
+                    
+                        description = r.weather[0].description;
+                        var icon = r.weather[0].icon;
+                        //var src = http://openweathermap.org/img/w/"+icon+".png";
+                        res += "<b><br>Description: </b>" + description;
+                        var iconurl = "http://openweathermap.org/img/w/" + icon + ".png";
+                        $('#wicon').attr('src', iconurl);
+                        
+                        pressure = r.main.pressure;
+                        res += "<b><br>Pressure: </b>" + pressure;
+                        
+                        visibility = r.visibility;
+                        res += "<b><br>Visibility: </b>" + visibility;
+                        
+                        humidity = r.main.humidity;
+                        res += "<b><br>Humidity: </b>" + humidity + "%";
+                        
+                        windspeed = r.wind.speed;
+                        res += "<b><br>Wind Speed: </b>" + windspeed + " MPH";
+                        
+                        sunrise = r.sys.sunrise;
+                        var myDate = new Date(1000*sunrise);
+                        res += "<b><br>Sunrise Epoch: </b>" + myDate;
+                        
+                        res += "</fieldset>";
+                        $("#output").html(res);
+                    }
+            });
+            
+          };
+        });
+
+
+    });
+    
+    
+
+</script>    
+
+
+    
+        
+</html>
